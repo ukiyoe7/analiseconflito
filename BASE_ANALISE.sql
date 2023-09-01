@@ -2,7 +2,6 @@ WITH CLI AS (
 SELECT DISTINCT C.CLICODIGO,
                   CLINOMEFANT,
                    C.GCLCODIGO,
-                     CLIPCDESCPRODU,
                       GCLNOME,  
                        SETOR
                          FROM CLIEN C

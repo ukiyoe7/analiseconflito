@@ -10,9 +10,14 @@ con2 <- dbConnect(odbc::odbc(), "reproreplica", timeout = 10,encoding="Latin1")
 
 ## QUERIES ==================
 
-df <- dbGetQuery(con2, statement = read_file('ANALISE_CONFLITO_LA.sql'))
+base_analise <- dbGetQuery(con2, statement = read_file('BASE_ANALISE.sql'))
 
-View(df)
+View(base_analise)
+
+
+descto_geral <- dbGetQuery(con2, statement = read_file('DESCTO_GERAL.sql'))
+
+View(descto_geral)
 
 
 
@@ -31,7 +36,9 @@ pacotes %>% group_by(CLICODIGO) %>% tally() %>% View()
 ## SET CALC =====================
 
 conflict_set <- 
-left_join(df,pacotes,by="CLICODIGO")
+left_join(base_analise,pacotes,by="CLICODIGO")
+
+View(conflict_set)
 
 
 
