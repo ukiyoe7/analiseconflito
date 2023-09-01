@@ -24,10 +24,13 @@ SELECT DISTINCT C.CLICODIGO,
                                   -- PRODUTO 
                                
                                    PROD AS (SELECT TB.PROCODIGO,
-                                             ROUND(PREPCOVENDA2*(1-TBPPCDESCTO2*1.00/100)*2,2) PROMO
-                                              FROM TBPPRODU TB
-                                               LEFT JOIN PRECO PC ON PC.PROCODIGO=TB.PROCODIGO
-                                                WHERE TBPCODIGO=1642 AND TB.PROCODIGO='LA0182')
+                                              TBPPCDESCTO2 DESCTO_PROMO,
+                                               ROUND(PREPCOVENDA2*(1-TBPPCDESCTO2*1.00/100)*2,2) VALOR_PROMO
+                                                FROM TBPPRODU TB
+                                                 LEFT JOIN PRECO PC ON PC.PROCODIGO=TB.PROCODIGO
+                                                  WHERE TBPCODIGO=1642 AND TB.PROCODIGO='LA0182')
+                                                
+                                                
                               
 SELECT * FROM CLI
  CROSS JOIN PROD

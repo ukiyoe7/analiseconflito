@@ -19,7 +19,7 @@ SELECT DISTINCT C.CLICODIGO,
                                  PROD AS (SELECT 
                                            DISTINCT 
                                             T.PROCODIGO,
-                                                   PREPCOVENDA2
+                                              PREPCOVENDA2
                                               FROM TBPPRODU T
                                                INNER JOIN TBPRECO TP ON T.TBPCODIGO=TP.TBPCODIGO
                                                 INNER JOIN PRECO PC ON PC.PROCODIGO=T.PROCODIGO
@@ -28,7 +28,7 @@ SELECT DISTINCT C.CLICODIGO,
       SELECT 
        CLICODIGO,
         PROCODIGO,
-          PREPCOVENDA2 PRECO_TABELA,
+          PREPCOVENDA2*2 PRECO_TABELA,
            CLIPCDESCPRODU DESCTO_GERAL,
            ROUND(PREPCOVENDA2*(1- CLIPCDESCPRODU*1.00/100)*2,2) PRECO_GERAL  
             FROM CLI
