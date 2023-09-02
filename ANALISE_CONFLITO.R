@@ -7,6 +7,7 @@ library(tidyverse)
 
 con2 <- dbConnect(odbc::odbc(), "reproreplica", timeout = 10,encoding="Latin1")
 
+
 ## CLIENTES ==================
 
 cli<- dbGetQuery(con2, statement = read_file('CLIENTES.sql'))
@@ -63,7 +64,6 @@ relrepro <- dbGetQuery(con2, statement = read_file('RELREPRO.sql'))
 
 View(relrepro)
 
-
 ## DESCT GERAL ==================
 
 descto_geral <- dbGetQuery(con2, statement = read_file('DESCTO_GERAL.sql'))
@@ -73,28 +73,43 @@ View(descto_geral)
 
 ## MONTAGEM ==================
 
+
+## gera tabela com a montagem
+
 montagem <- dbGetQuery(con2, statement = read_file('MONTAGEM.sql'))
 
 View(montagem)
 
-montagem_tab <- dbGetQuery(con2, statement = read_file('MONTAGEM_TAB.sql'))
+montagem_tab <- dbGetQuery(con2, statement = read_file('MONTAGEM_TAB.sql')) %>% 
+  mutate(VALOR_MONT3=if_else(!is.na(VALOR_MONT1),VALOR_MONT1,VALOR_MONT2))
 
 View(montagem_tab)
 
 
-merge_cli_promo <-
-merge(clien,montagem)
+## desconto geal montagem
 
-View(merge_cli_promo)
+descto_geral_mont <- dbGetQuery(con2, statement = read_file('DESCTO_GERAL_MONT.sql')) 
 
-merge_mont <-
-left_join(merge_cli_promo,montagem_tab,by=c("CLICODIGO","PROCODIGO_MONT")) %>% 
-  mutate(VALOR_MONT2=if_else(is.na(TBPCODIGO_MONT),PRECO_MONT,VALOR_MONT))
+View(descto_geral_mont)
+
+
+## mesclar cliente montagem desconto geral
+
+join_cli_promo_mont <-
+ left_join(clien,descto_geral_mont,by="CLICODIGO")  %>% select(-CLIPCDESCPRODU)
+View(join_cli_promo_mont)
+
+## mesclar tabelas
+
+join_geraL_tab_mont <-
+ left_join(merge_cli_promo,montagem_tab,by=c("CLICODIGO","PROCODIGO_MONT")) %>% 
+  mutate(VALOR_MONT4=if_else(is.na(TBPCODIGO_MONT),PRECO_MONT_GERAL,VALOR_MONT3)) %>% 
+   select(CLICODIGO,PROCODIGO_MONT,VALOR_MONT4)
   
-  View(merge_mont)
+  View(join_geraL_tab_mont)
 
 
-montagem %>% .[duplicated(.$CLICODIGO),]
+  merge_mont %>% .[duplicated(.$CLICODIGO),]
 
 ## SET JOINS  =====================
 
@@ -116,8 +131,12 @@ View(conflict_set)
 write.csv2(conflict_set,file = "conflict_set.csv" ,row.names = FALSE ,na="")
 
 
+##  TESTS =====================================================
 
 
+test2 <- dbGetQuery(con2, statement = read_file('TEST.sql'))
+
+View(test2)
 
 
 

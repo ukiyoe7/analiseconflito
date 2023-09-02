@@ -1,7 +1,8 @@
 SELECT DISTINCT C.CLICODIGO,
                   CLINOMEFANT,
                    C.GCLCODIGO COD_GRUPO,
-                     GCLNOME NOME_GRUPO,  
+                     GCLNOME NOME_GRUPO,
+                      CLIPCDESCPRODU,
                        SETOR
                          FROM CLIEN C
                            INNER JOIN (SELECT CLICODIGO,E.ZOCODIGO,ZODESCRICAO SETOR FROM ENDCLI E
