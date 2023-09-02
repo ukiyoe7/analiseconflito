@@ -51,7 +51,7 @@ View(comb)
 
 tabelas1 <- dbGetQuery(con2, statement = read_file('TABELAS.sql'))
 
-View(tabelas)
+View(tabelas1)
 
 tabelas %>% .[duplicated(.$CLICODIGO),]
 
@@ -76,6 +76,22 @@ View(descto_geral)
 montagem <- dbGetQuery(con2, statement = read_file('MONTAGEM.sql'))
 
 View(montagem)
+
+montagem_tab <- dbGetQuery(con2, statement = read_file('MONTAGEM_TAB.sql'))
+
+View(montagem_tab)
+
+
+merge_cli_promo <-
+merge(clien,montagem)
+
+View(merge_cli_promo)
+
+merge_mont <-
+left_join(merge_cli_promo,montagem_tab,by=c("CLICODIGO","PROCODIGO_MONT")) %>% 
+  mutate(VALOR_MONT2=if_else(is.na(TBPCODIGO_MONT),PRECO_MONT,VALOR_MONT))
+  
+  View(merge_mont)
 
 
 montagem %>% .[duplicated(.$CLICODIGO),]
