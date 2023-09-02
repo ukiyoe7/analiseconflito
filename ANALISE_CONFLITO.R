@@ -57,6 +57,8 @@ montagem <- dbGetQuery(con2, statement = read_file('MONTAGEM.sql'))
 View(montagem)
 
 
+montagem %>% .[duplicated(.$CLICODIGO),]
+
 ## SET JOINS  =====================
 
 conflict_set <- 
