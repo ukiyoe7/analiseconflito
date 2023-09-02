@@ -30,9 +30,11 @@ View(comb)
 ## TABELAS ==================
 
 
-pacotes <- dbGetQuery(con2, statement = read_file('TABELAS.sql'))
+tabelas1 <- dbGetQuery(con2, statement = read_file('TABELAS.sql'))
 
-View(pacotes)
+View(tabelas)
+
+tabelas %>% .[duplicated(.$CLICODIGO),]
 
 
 ## RELREPRO ==================
@@ -65,7 +67,9 @@ conflict_set <-
 left_join(base_analise,
            descto_geral %>% select(-PROCODIGO),by="CLICODIGO") %>% 
             left_join(.,pacotes,by="CLICODIGO") %>% 
-             left_join(.,comb,by="CLICODIGO") 
+             left_join(.,comb,by="CLICODIGO") %>% 
+              left_join(.,tabelas1,by="CLICODIGO") %>% 
+               left_join(.,montagem,by="CLICODIGO")
 
 View(conflict_set)
 
