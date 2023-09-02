@@ -7,11 +7,30 @@ library(tidyverse)
 
 con2 <- dbConnect(odbc::odbc(), "reproreplica", timeout = 10,encoding="Latin1")
 
-## BASE ==================
+## CLIENTES ==================
 
-base_analise <- dbGetQuery(con2, statement = read_file('BASE_ANALISE.sql'))
+cli<- dbGetQuery(con2, statement = read_file('CLIENTES.sql'))
 
-View(base_analise)
+inativos<- dbGetQuery(con2, statement = read_file('INATIVOS.sql'))
+
+clien <-
+anti_join(cli,inativos,by="CLICODIGO")
+
+View(clien)
+
+
+## TAB PROMO ==================
+
+tab_promo <- dbGetQuery(con2, statement = read_file('TAB_PROMO.sql'))
+
+View(tab_promo)
+
+
+## CLI PROMO ==================
+
+cli_promo <- dbGetQuery(con2, statement = read_file('CLI_PROMO.sql'))
+
+View(cli_promo)
 
 
 ## PACOTES ==================
@@ -40,9 +59,9 @@ tabelas %>% .[duplicated(.$CLICODIGO),]
 ## RELREPRO ==================
 
 
-pacotes <- dbGetQuery(con2, statement = read_file('RELREPRO.sql'))
+relrepro <- dbGetQuery(con2, statement = read_file('RELREPRO.sql'))
 
-View(pacotes)
+View(relrepro)
 
 
 ## DESCT GERAL ==================
@@ -63,9 +82,11 @@ montagem %>% .[duplicated(.$CLICODIGO),]
 
 ## SET JOINS  =====================
 
+merge_cli_promo <- merge(clien,tab_promo)
+
 conflict_set <- 
-left_join(base_analise,
-           descto_geral %>% select(-PROCODIGO),by="CLICODIGO") %>% 
+left_join(merge_cli_promo,cli_promo,by="CLICODIGO") %>% 
+           left_join(.,descto_geral %>% select(-PROCODIGO),by="CLICODIGO") %>% 
             left_join(.,pacotes,by="CLICODIGO") %>% 
              left_join(.,comb,by="CLICODIGO") %>% 
               left_join(.,tabelas1,by="CLICODIGO") %>% 
