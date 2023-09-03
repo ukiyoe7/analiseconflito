@@ -80,11 +80,6 @@ montagem <- dbGetQuery(con2, statement = read_file('MONTAGEM.sql'))
 
 View(montagem)
 
-montagem_tab <- dbGetQuery(con2, statement = read_file('MONTAGEM_TAB.sql')) %>% 
-  mutate(VALOR_MONT3=if_else(!is.na(VALOR_MONT1),VALOR_MONT1,VALOR_MONT2))
-
-View(montagem_tab)
-
 
 ## desconto geal montagem
 
@@ -96,8 +91,28 @@ View(descto_geral_mont)
 ## mesclar cliente montagem desconto geral
 
 join_cli_promo_mont <-
- left_join(clien,descto_geral_mont,by="CLICODIGO")  %>% select(-CLIPCDESCPRODU)
+  left_join(clien,descto_geral_mont,by="CLICODIGO")  %>% select(-CLIPCDESCPRODU)
 View(join_cli_promo_mont)
+
+## DESCTO TABELAS
+
+mont_descto_tab <- dbGetQuery(con2, statement = read_file('MONTAGEM_DESCTO_TAB.sql')) %>% 
+
+mont_valor_tab <- dbGetQuery(con2, statement = read_file('MONTAGEM_VALOR_TAB.sql'))
+
+mont_tab <-
+left_join(clien %>% select(CLICODIGO),mont_valor_tab,by=c("CLICODIGO")) %>% 
+   left_join(.,mont_descto_tab,by=c("CLICODIGO","PROCODIGO_MONT")) 
+
+View(mont_tab)
+
+mont_tab %>% .[duplicated(.$CLICODIGO),]
+
+
+## DESCTO GERAL DESCTO TABELAS
+
+left_join(join_cli_promo_mont,mont_tab,by="CLICODIGO") %>% View()
+
 
 ## mesclar tabelas
 
