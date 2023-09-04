@@ -20,6 +20,20 @@ anti_join(cli,inativos,by="CLICODIGO")
 View(clien)
 
 
+## DESCT GERAL ==================
+
+descto_geral <- dbGetQuery(con2, statement = read_file('DESCTO_GERAL.sql'))
+
+View(descto_geral)
+
+descto_geral <-
+merge(clien,descto_geral) %>% 
+  mutate(VALOR_DESCTO_GERAL= round(PREPCOVENDA2*(1- CLIPCDESCPRODU*1.00/100)*2,2)) %>% 
+   select(CLICODIGO,PROCODIGO,VALOR_DESCTO_GERAL)
+
+View(descto_geral)
+
+
 ## TAB PROMO ==================
 
 tab_promo <- dbGetQuery(con2, statement = read_file('TAB_PROMO.sql'))
@@ -54,6 +68,11 @@ tabelas1 <- dbGetQuery(con2, statement = read_file('TABELAS.sql'))
 
 View(tabelas1)
 
+
+tabelas_valor <- dbGetQuery(con2, statement = read_file('TABELAS_VALOR.sql'))
+
+View(tabelas_valor)
+
 tabelas %>% .[duplicated(.$CLICODIGO),]
 
 
@@ -64,11 +83,6 @@ relrepro <- dbGetQuery(con2, statement = read_file('RELREPRO.sql'))
 
 View(relrepro)
 
-## DESCT GERAL ==================
-
-descto_geral <- dbGetQuery(con2, statement = read_file('DESCTO_GERAL.sql'))
-
-View(descto_geral)
 
 
 ## MONTAGEM ==================
@@ -111,20 +125,11 @@ mont_tab %>% .[duplicated(.$CLICODIGO),]
 
 ## DESCTO GERAL DESCTO TABELAS
 
-left_join(join_cli_promo_mont,mont_tab,by="CLICODIGO") %>% View()
+montagem <- 
+left_join(join_cli_promo_mont,mont_tab,by="CLICODIGO") %>% .[,c(1,6:16)]
 
 
-## mesclar tabelas
-
-join_geraL_tab_mont <-
- left_join(merge_cli_promo,montagem_tab,by=c("CLICODIGO","PROCODIGO_MONT")) %>% 
-  mutate(VALOR_MONT4=if_else(is.na(TBPCODIGO_MONT),PRECO_MONT_GERAL,VALOR_MONT3)) %>% 
-   select(CLICODIGO,PROCODIGO_MONT,VALOR_MONT4)
-  
-  View(join_geraL_tab_mont)
-
-
-  merge_mont %>% .[duplicated(.$CLICODIGO),]
+montagem %>% .[duplicated(.$CLICODIGO),]
 
 ## SET JOINS  =====================
 

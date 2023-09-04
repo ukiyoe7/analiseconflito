@@ -1,4 +1,14 @@
-WITH CLI AS (SELECT * FROM PCTCLI WHERE PCTSITUACAO<>'C'),
+WITH 
+
+CLI AS (SELECT * FROM PCTCLI WHERE PCTSITUACAO<>'C'),
+
+TBPRECO AS (SELECT TBPCODIGO FROM TABPRECO 
+                                 WHERE TBPSITUACAO='A'
+                                  AND (TBPDTVALIDADE=NULL OR TBPDTVALIDADE>='TODAY')),
+                               
+TBPROD AS (SELECT TB.PROCODIGO
+                    FROM TBPPRODU TB
+                     WHERE TBPCODIGO=1642),
 
 PCT AS (
        SELECT CLICODIGO,
@@ -6,7 +16,7 @@ PCT AS (
          PCTDTSUSP
          ,P.* FROM PCTPRO P
           INNER JOIN CLI C ON P.PCTNUMERO=C.PCTNUMERO
-           WHERE PROCODIGO='LA0182'),
+           INNER JOIN TBPROD T ON  P.PROCODIGO=T.PROCODIGO),
 
 PCT1 AS (  
       SELECT DISTINCT 
@@ -18,12 +28,14 @@ PCT1 AS (
             
       SELECT DISTINCT 
         P.CLICODIGO,
-         PCTNUMERO,
-          PCPPCOUNIT VLR_PACOTE,
-          SALDO 
-          FROM PCT P
-           INNER JOIN PCT1 P1 ON P1.SALDO=P.PCPSALDO AND P.CLICODIGO=P1.CLICODIGO
-           WHERE PCTDTFIM>='TODAY' AND PCPSALDO>0
-            GROUP BY 1,2,3,4
+         PROCODIGO,
+          PCTNUMERO,
+           SALDO,
+            PCPPCOUNIT VLR_PC_PCT,
+             PCPPCOUNIT*2 VLR_PAR_PCT
+              FROM PCT P
+               INNER JOIN PCT1 P1 ON P1.SALDO=P.PCPSALDO AND P.CLICODIGO=P1.CLICODIGO
+                WHERE PCTDTFIM>='TODAY' AND PCPSALDO>0
+                 GROUP BY 1,2,3,4,5
             
 
