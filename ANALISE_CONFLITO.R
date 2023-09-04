@@ -14,20 +14,19 @@ cli<- dbGetQuery(con2, statement = read_file('CLIENTES.sql'))
 
 inativos<- dbGetQuery(con2, statement = read_file('INATIVOS.sql'))
 
-clien <-
-anti_join(cli,inativos,by="CLICODIGO")
+clien <- anti_join(cli,inativos,by="CLICODIGO")
 
 View(clien)
 
 
-## DESCT GERAL ==================
+## DESCONTO GERAL ==================
 
 descto_geral <- dbGetQuery(con2, statement = read_file('DESCTO_GERAL.sql'))
 
 View(descto_geral)
 
 descto_geral <-
-merge(clien,descto_geral) %>% 
+ merge(clien,descto_geral) %>% 
   mutate(VALOR_DESCTO_GERAL= round(PREPCOVENDA2*(1- CLIPCDESCPRODU*1.00/100)*2,2)) %>% 
    select(CLICODIGO,PROCODIGO,VALOR_DESCTO_GERAL)
 
@@ -64,9 +63,9 @@ View(comb)
 ## TABELAS ==================
 
 
-tabelas1 <- dbGetQuery(con2, statement = read_file('TABELAS.sql'))
+tabelas <- dbGetQuery(con2, statement = read_file('TABELAS.sql'))
 
-View(tabelas1)
+View(tabelas)
 
 
 tabelas_valor <- dbGetQuery(con2, statement = read_file('TABELAS_VALOR.sql'))
@@ -110,13 +109,13 @@ View(join_cli_promo_mont)
 
 ## DESCTO TABELAS
 
-mont_descto_tab <- dbGetQuery(con2, statement = read_file('MONTAGEM_DESCTO_TAB.sql')) %>% 
-
 mont_valor_tab <- dbGetQuery(con2, statement = read_file('MONTAGEM_VALOR_TAB.sql'))
+
+mont_descto_tab <- dbGetQuery(con2, statement = read_file('MONTAGEM_DESCTO_TAB.sql'))
 
 mont_tab <-
 left_join(clien %>% select(CLICODIGO),mont_valor_tab,by=c("CLICODIGO")) %>% 
-   left_join(.,mont_descto_tab,by=c("CLICODIGO","PROCODIGO_MONT")) 
+   left_join(.,mont_descto_tab,by=c("CLICODIGO")) 
 
 View(mont_tab)
 
@@ -135,12 +134,14 @@ montagem %>% .[duplicated(.$CLICODIGO),]
 
 merge_cli_promo <- merge(clien,tab_promo)
 
+View(merge_cli_promo)
+
 conflict_set <- 
 left_join(merge_cli_promo,cli_promo,by="CLICODIGO") %>% 
-           left_join(.,descto_geral %>% select(-PROCODIGO),by="CLICODIGO") %>% 
-            left_join(.,pacotes,by="CLICODIGO") %>% 
-             left_join(.,comb,by="CLICODIGO") %>% 
-              left_join(.,tabelas1,by="CLICODIGO") %>% 
+           left_join(.,descto_geral,by=c("CLICODIGO","PROCODIGO")) %>% 
+            left_join(.,pacotes,by=c("CLICODIGO","PROCODIGO")) %>% 
+             left_join(.,comb,by=c("CLICODIGO","PROCODIGO")) %>% 
+              left_join(.,tabelas,by=c("CLICODIGO","PROCODIGO")) %>% 
                left_join(.,montagem,by="CLICODIGO")
 
 View(conflict_set)
